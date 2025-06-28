@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Video Downloader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 2px solid #f1f2f6;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .section h2 {
+            color: #2f3542;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2f3542;
+        }
+
+        input[type="url"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .download-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 15px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .download-link:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 TikTok Downloader</h1>
+            <p>Download TikTok videos and get metadata easily</p>
+        </div>
+        
+        <div class="content">
+            <!-- Download Video Section -->
+            <div class="section">
+                <h2>📥 Download Video</h2>
+                <div class="form-group">
+                    <label for="downloadUrl">TikTok Video URL:</label>
+                    <input type="url" id="downloadUrl" placeholder="https://www.tiktok.com/@username/video/123456789">
+                </div>
+                <button class="btn" onclick="downloadVideo()">Download Video</button>
+                <div class="loading" id="downloadLoading">
+                    <div class="spinner"></div>
+                    <p>Downloading video...</p>
+                </div>
+                <div id="downloadResult" class="result" style="display: none;"></div>
+            </div>
+
+            <!-- Get Metadata Section -->
+            <div class="section">
+                <h2>📊 Get Metadata</h2>
+                <div class="form-group">
+                    <label for="metadataUrl">TikTok Video URL:</label>
+                    <input type="url" id="metadataUrl" placeholder="https://www.tiktok.com/@username/video/123456789">
+                </div>
+                <button class="btn btn-secondary" onclick="getMetadata()">Get Metadata</button>
+                <div class="loading" id="metadataLoading">
+                    <div class="spinner"></div>
+                    <p>Fetching metadata...</p>
+                </div>
+                <div id="metadataResult" class="result" style="display: none;"></div>
+            </div>
+
+            <!-- Get All Video Formats Section -->
+            <div class="section">
+                <h2>🎬 Get All Video Formats</h2>
+                <div class="form-group">
+                    <label for="formatsUrl">TikTok Video URL:</label>
+                    <input type="url" id="formatsUrl" placeholder="https://www.tiktok.com/@username/video/123456789">
+                </div>
+                <button class="btn" onclick="getFormats()">Get All Formats</button>
+                <div class="loading" id="formatsLoading">
+                    <div class="spinner"></div>
+                    <p>Fetching formats...</p>
+                </div>
+                <div id="formatsResult" class="result" style="display: none;"></div>
+            </div>
+
+            <!-- API Status Section -->
+            <div class="section">
+                <h2>🔍 API Status</h2>
+                <button class="btn" onclick="checkHealth()">Check API Health</button>
+                <button class="btn btn-secondary" onclick="getApiInfo()">Get API Info</button>
+                <div id="statusResult" class="result" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        async function downloadVideo() {
+            const url = document.getElementById('downloadUrl').value;
+            const resultDiv = document.getElementById('downloadResult');
+            const loadingDiv = document.getElementById('downloadLoading');
+
+            if (!url) {
+                showResult(resultDiv, 'Please enter a TikTok URL', 'error');
+                return;
+            }
+
+            loadingDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/download`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+
+                const data = await response.json();
+                loadingDiv.style.display = 'none';
+
+                if (data.success) {
+                    const result = `✅ Download Successful!
+
+Filename: ${data.filename}
+File Size: ${formatFileSize(data.file_size)}
+Download ID: ${data.download_id}
+
+`;
+                    const downloadLink = `<a href="${API_BASE}${data.download_url}" class="download-link" download>📥 Download File</a>`;
+                    showResult(resultDiv, result, 'success');
+                    resultDiv.innerHTML += downloadLink;
+                } else {
+                    showResult(resultDiv, `❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                showResult(resultDiv, `❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function getMetadata() {
+            const url = document.getElementById('metadataUrl').value;
+            const resultDiv = document.getElementById('metadataResult');
+            const loadingDiv = document.getElementById('metadataLoading');
+
+            if (!url) {
+                showResult(resultDiv, 'Please enter a TikTok URL', 'error');
+                return;
+            }
+
+            loadingDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/metadata`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+
+                const data = await response.json();
+                loadingDiv.style.display = 'none';
+
+                if (data.success) {
+                    const result = `✅ Metadata Retrieved!
+
+${JSON.stringify(data.metadata, null, 2)}`;
+                    showResult(resultDiv, result, 'success');
+                } else {
+                    showResult(resultDiv, `❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                showResult(resultDiv, `❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function getFormats() {
+            const url = document.getElementById('formatsUrl').value;
+            const resultDiv = document.getElementById('formatsResult');
+            const loadingDiv = document.getElementById('formatsLoading');
+
+            if (!url) {
+                showResult(resultDiv, 'Please enter a TikTok URL', 'error');
+                return;
+            }
+
+            loadingDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/formats?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+                loadingDiv.style.display = 'none';
+
+                if (data.success) {
+                    const result = `✅ Video Formats Retrieved!
+
+${JSON.stringify(data, null, 2)}`;
+                    showResult(resultDiv, result, 'success');
+                } else {
+                    showResult(resultDiv, `❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                showResult(resultDiv, `❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkHealth() {
+            const resultDiv = document.getElementById('statusResult');
+
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+
+                const result = `🟢 API Health Check
+
+Status: ${data.status}
+Timestamp: ${data.timestamp}`;
+                showResult(resultDiv, result, 'success');
+            } catch (error) {
+                showResult(resultDiv, `❌ Health Check Failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function getApiInfo() {
+            const resultDiv = document.getElementById('statusResult');
+
+            try {
+                const response = await fetch(`${API_BASE}/`);
+                const data = await response.json();
+
+                const result = `ℹ️ API Information
+
+${JSON.stringify(data, null, 2)}`;
+                showResult(resultDiv, result, 'success');
+            } catch (error) {
+                showResult(resultDiv, `❌ Failed to get API info: ${error.message}`, 'error');
+            }
+        }
+
+        function showResult(element, text, type) {
+            element.textContent = text;
+            element.className = `result ${type}`;
+            element.style.display = 'block';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

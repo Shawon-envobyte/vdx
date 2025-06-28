@@ -1,0 +1,47 @@
+# Google Cloud Run service configuration
+# This file can be used with 'gcloud run services replace app.yaml'
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: tiktok-downloader
+  annotations:
+    run.googleapis.com/ingress: all
+    run.googleapis.com/ingress-status: all
+spec:
+  template:
+    metadata:
+      annotations:
+        # Resource allocation
+        run.googleapis.com/memory: "2Gi"
+        run.googleapis.com/cpu: "2"
+        
+        # Scaling configuration
+        autoscaling.knative.dev/maxScale: "10"
+        autoscaling.knative.dev/minScale: "0"
+        
+        # Timeout configuration
+        run.googleapis.com/timeout: "3600s"
+        
+        # Concurrency
+        run.googleapis.com/execution-environment: gen2
+        
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 3600
+      containers:
+      - image: gcr.io/PROJECT_ID/tiktok-downloader:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        resources:
+          limits:
+            memory: "2Gi"
+            cpu: "2"
+  traffic:
+  - percent: 100
+    latestRevision: true
