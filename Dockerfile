@@ -15,15 +15,18 @@ RUN apt-get update && apt-get install -y \
     && apt-get update \
     && apt-get install -y \
     python3.12 \
-    python3.12-pip \
     python3.12-dev \
     python3.12-venv \
+    python3.12-distutils \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Create symbolic links for python and pip
+# Create symbolic links for python
 RUN ln -sf /usr/bin/python3.12 /usr/bin/python3 \
     && ln -sf /usr/bin/python3.12 /usr/bin/python
+
+# Install pip for Python 3.12
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
 
 # Set working directory
 WORKDIR /app
