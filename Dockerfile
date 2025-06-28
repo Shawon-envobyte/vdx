@@ -35,7 +35,7 @@ COPY requirements.txt .
 
 # Install Python dependencies
 RUN python3.12 -m pip install --no-cache-dir --upgrade pip \
-    && python3.12 -m pip install --no-cache-dir -r requirements.txt
+    && python3.12 -m pip install --no-cache-dir --force-reinstall --no-deps -r requirements.txt
 
 # Copy application code
 COPY . .
